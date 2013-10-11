@@ -5,74 +5,74 @@ import base64
 from socket import *
 from uuid import getnode as get_mac
 
+"""
+My EtherDeam's Output
+=====================
+- MAC: 00:04:a3:87:28:cd
+- HW 2, SW 2
+- Capabilities: max 1799 points, 100000 kpps
+- Light engine: state 0, flags 0x0
+- Playback: state 0, flags 0x0
+- Buffer: 0 points
+- Playback: 0 kpps, 0 points played
+- Source: 0, flags 0x0
+"""
+
+def packed_mac(mac=None):
+	if not mac:
+		mac = get_mac()
+
+	byts = []
+	while mac > 0:
+		d = mac & 0xFF
+		byts.append('%02x' %d)
+		mac >>= 8
+
+	byteStr = int(''.join(byts), 16)
+
+	return struct.pack('<' + 'Q', byteStr)[0:6] # Two wasted bits
+
+def packed_info():
+	hw_rev = int('%02x' % 2, 16)
+	sw_rev = int('%02x' % 2, 16)
+	buffer_cap = int('%02x' % 1799, 16)
+	max_pt_rate= int('%04x' % 100000, 16)
+
+	return struct.pack('<HHHI', hw_rev, sw_rev, buffer_cap, max_pt_rate)[0:10]
+
+def packed_status():
+	proto = 0
+	le_state = 0
+	play_state = 0
+	source = 0
+
+	le_flags = 0
+	play_flags  = 0
+	source_flags = 0
+
+	fullness = 0
+	point_rate = 0
+	point_count = 0
+
+	return struct.pack('<BBBBHHHHII', \
+			proto, le_state, play_state, source, le_flags, play_flags, \
+			source_flags, fullness, point_rate, point_count)
+
 def main():
 	s = socket(AF_INET, SOCK_DGRAM)
 	s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 	s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
-	proto = 1
-	le_state = 1
-	play_state = 1
-	source = 1
+	mac = packed_mac()
+	info = packed_info()
+	status = packed_status()
 
-	le_flags = 1
-	play_flags  = 1
-	source_flags = 1
-
-	fullness = 1
-	point_rate = 1
-	point_count = 1
-
-	m = get_mac()
-	limit = 256*256*256*256 - 1
-	parts = []
-
-	while m:
-		parts.append(m & limit)
-		m >>= 32
-
-	parts.sort(reverse=True)
-
-	mac = struct.pack('<' + 'L'*len(parts), *parts)
-
-	pointRate = '0000000000'
-
-	status = struct.pack('<BBBBHHHHII', \
-			proto, le_state, play_state, source, le_flags, play_flags, \
-			source_flags, fullness, point_rate, point_count)
-
-	broadcastPacket = mac + pointRate + status
+	broadcastPacket = mac + info + status
 
 	while 1:
-
-		#msg = struct.pack("<HHHI", flags, x, y, r, g, b, i, u1, u2)
-
-		#s.sendto('Hello Everyone', ('255.255.255.255', 7654))
+		#s.sendto(broadcastPacket, ('255.255.255.255', 7654))
 		#s.sendto(broadcastPacket, ('', 7654))
 		s.sendto(broadcastPacket, ('localhost', 7654))
-
-	"""
-
-	def __init__(self, st):
-		self.mac = st[:6]
-		self.hw_rev, self.sw_rev, self.buffer_capacity, \
-		self.max_point_rate = struct.unpack("<HHHI", st[6:16])
-		self.status = Status(st[16:36])
-
-	def dump(self, prefix = " - "):
-		lines = [
-			"MAC: " + ":".join(
-				"%02x" % (ord(o), ) for o in self.mac),
-			"HW %d, SW %d" %
-				(self.hw_rev, self.sw_rev),
-			"Capabilities: max %d points, %d kpps" %
-				(self.buffer_capacity, self.max_point_rate)
-		]
-		for l in lines:
-			print prefix + l
-		self.status.dump(prefix)
-	"""
-
 
 def listen():
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
