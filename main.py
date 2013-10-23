@@ -8,6 +8,8 @@ from socket import *
 from uuid import getnode as get_mac
 from multiprocessing import Process, Queue
 
+
+from errors import *
 from broadcast import BroadcastPacket
 from etherdream import EtherdreamThread, SocketBroken
 
@@ -41,9 +43,10 @@ def etherdream_process():
 		try:
 			cs = EtherdreamThread(clientsocket, address)
 			cs.communicate()
-		except SocketBroken as e:
+		except SocketException as e:
+			print "Etherdream got an exception..."
 			print e
-			pass
+
 		#ct = client_thread(clientsocket)
 		#ct.run()
 
