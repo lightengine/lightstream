@@ -1,4 +1,7 @@
+from socket import *
+import threading
 import struct
+import time
 from uuid import getnode as get_mac
 
 class BroadcastPacket(object):
@@ -70,4 +73,41 @@ class BroadcastPacket(object):
 				source_flags, fullness, point_rate, point_count)[:20]
 
 		return struct_mac + struct_info + struct_status
+
+
+class BroadcastThread(threading.Thread):
+	def __init__(self):
+		print "bcast - init"
+		self._isRunning = False
+		self._lock = threading.RLock()
+
+	def run(self):
+		print "bcast - run"
+		self._isRunning = True
+
+		s = socket(AF_INET, SOCK_DGRAM)
+		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+		s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
+
+		bp = BroadcastPacket()
+		broadcastPacket = bp.getStruct()
+
+		running = True
+
+		while running:
+			print "sending broadcast"
+			#s.sendto(broadcastPacket, ('255.255.255.255', 7654))
+			s.sendto(broadcastPacket, ('', 7654))
+			time.sleep(0.5)
+			#s.sendto(broadcastPacket, ('localhost', 7654))
+
+			with self._lock:
+				running = self._isRunning
+
+		print "BroadcastThread KILLED!!!"
+
+	def kill(self):
+		print "Killing BroadcastThread"
+		with self._lock:
+			self._isRunning = False
 
