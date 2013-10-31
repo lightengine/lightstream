@@ -45,14 +45,36 @@ class EtherdreamThread(threading.Thread):
 		respPacket = hello.getStruct()
 		self.socket.send(respPacket)
 
+	def respond_begin(self):
+		p = ResponsePacket('b')
+		respPacket = p.getStruct()
+		self.socket.send(respPacket)
+
+	def respond_data(self):
+		p = ResponsePacket('d')
+		respPacket = p.getStruct()
+		self.socket.send(respPacket)
+
 	def handle_packet(self, packet):
 		buf = packet.getBuffer()
 		print 'handle_packet:', len(buf)
 
-		if buf == 'p':
-			self.send_prepared()
+		t = packet.getType()
+
+		if t == PacketTypes.DATA:
+			print 'data packet'
+			self.respond_data()
 			return
 
+		if t == PacketTypes.BEGIN:
+			print 'begin packet'
+			self.respond_begin()
+			return
+
+		if t == PacketTypes.PREPARE:
+			print 'prepare packet'
+			self.send_prepared()
+			return
 
 	def main(self):
 		while 1:

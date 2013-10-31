@@ -8,6 +8,13 @@ from uuid import getnode as get_mac # TODO: Not really necessary
 
 from errors import *
 
+class PacketTypes(object):
+	HELLO = 1
+	PREPARE = 2
+	BEGIN = 3
+	DATA = 4
+
+
 class Packet(object):
 	def __init__(self):
 		self.proto = 0
@@ -147,7 +154,28 @@ class ReceivedPacket(Packet):
 			print "Packet done. Read %d times. Size %d." % \
 					(self._readCount, len(self._buf))
 
+
 class ReceivedCommandPacket(ReceivedPacket):
-	pass
+
+	def getType(self):
+		if self.reading():
+			return False
+
+		if len(self._buf) < 1:
+			#raise BadPacket()
+			return False
+
+		if self._buf[0] == 'd':
+			return PacketTypes.DATA
+		if self._buf[0] == '?':
+			return PacketTypes.HELLO
+		if self._buf[0] == 'p':
+			return PacketTypes.PREPARE
+		if self._buf[0] == 'b':
+			return PacketTypes.BEGIN
+
+class ReceivedDataPacket(ReceivedCommandPacket):
+	def getType(self):
+		return PacketTypes.DATA
 
 

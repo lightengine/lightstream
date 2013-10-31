@@ -8,3 +8,6 @@ class SocketBroken(SocketException):
 class SocketTimeout(SocketException):
 	pass
 
+class BadPacket(Exception):
+	pass
+

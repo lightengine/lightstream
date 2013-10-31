@@ -43,6 +43,10 @@ def etherdream_process():
 		try:
 			cs = EtherdreamThread(clientsocket, address)
 			cs.communicate()
+
+		except SocketTimeout as e:
+			pass
+
 		except SocketException as e:
 			print "Etherdream got an exception..."
 			print e
