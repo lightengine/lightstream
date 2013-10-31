@@ -23,23 +23,11 @@ from macs import *
 DEVICE_MAC = MAC_ETHERDREAM_B
 
 def etherdream_process():
-	"""
-	def broadcast_thread():
-		s = socket(AF_INET, SOCK_DGRAM)
-		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-		s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
-		bp = BroadcastPacket2()
-		broadcastPacket = bp.getStruct()
+	def etherdream_thread():
+		bcastThread = BroadcastThread()
+		bcastThread.start()
 
-		while 1:
-			#s.sendto(broadcastPacket, ('255.255.255.255', 7654))
-			s.sendto(broadcastPacket, ('', 7654))
-			#s.sendto(broadcastPacket, ('localhost', 7654))
-	"""
-
-
-	def etherdream_thread(bcastThread):
 		s = socket(AF_INET, SOCK_STREAM)
 		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 		s.bind(('localhost', 7765))
@@ -62,14 +50,12 @@ def etherdream_process():
 				print "Etherdream got an exception..."
 				print e
 
-			#ct = client_thread(clientsocket)
-			#ct.run()
+			bcastThread = BroadcastThread()
+			bcastThread.start()
 
-	bcastThread = BroadcastThread()
 
 	while True:
-		thread.start_new_thread(etherdream_thread, (bcastThread,))
-		bcastThread.run()
+		thread.start_new_thread(etherdream_thread, ())
 		time.sleep(100000)
 
 def outbound_process():

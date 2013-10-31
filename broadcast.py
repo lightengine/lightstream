@@ -76,14 +76,23 @@ class BroadcastPacket(object):
 
 
 class BroadcastThread(threading.Thread):
-	def __init__(self):
-		print "bcast - init"
-		self._isRunning = False
+
+	# Host options: '', 255.255.255.255, 'localhost', ...
+	def __init__(self, host='', port=7654):
+		self._isRunning = False # XXX: A locked resource
 		self._lock = threading.RLock()
+		self._host = host
+		self._port = port
+
+		super(BroadcastThread, self).__init__()
 
 	def run(self):
-		print "bcast - run"
-		self._isRunning = True
+		"""
+		Call start() to begin the thread.
+		The start() command is run from another control thread.
+		"""
+		with self._lock:
+			self._isRunning = True
 
 		s = socket(AF_INET, SOCK_DGRAM)
 		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -95,16 +104,17 @@ class BroadcastThread(threading.Thread):
 		running = True
 
 		while running:
-			print "sending broadcast"
-			#s.sendto(broadcastPacket, ('255.255.255.255', 7654))
-			s.sendto(broadcastPacket, ('', 7654))
+			s.sendto(broadcastPacket, (self._host, self._port))
 			time.sleep(0.5)
-			#s.sendto(broadcastPacket, ('localhost', 7654))
 
 			with self._lock:
 				running = self._isRunning
 
 		print "BroadcastThread KILLED!!!"
+
+	def isRunning(self):
+		with self._lock:
+			return self._isRunning
 
 	def kill(self):
 		print "Killing BroadcastThread"
