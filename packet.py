@@ -151,8 +151,8 @@ class ReceivedPacket(Packet):
 
 		if len(read) < size:
 			self._done = True
-			print "Packet done. Read %d times. Size %d." % \
-					(self._readCount, len(self._buf))
+			#print "Packet done. Read %d times. Size %d." % \
+			#		(self._readCount, len(self._buf))
 
 
 class ReceivedCommandPacket(ReceivedPacket):

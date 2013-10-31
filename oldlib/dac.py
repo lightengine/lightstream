@@ -127,6 +127,7 @@ class DAC(object):
 		"""Connect to the DAC over TCP."""
 		conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		conn.connect((host, port))
+		print "Connected to %s:%s" % (host, port)
 		self.conn = conn
 		self.buf = ""
 

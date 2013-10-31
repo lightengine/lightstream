@@ -34,13 +34,13 @@ class EtherdreamThread(threading.Thread):
 		"""
 
 	def send_hello(self):
-		print 'sending hello'
+		#print 'sending hello'
 		hello = ResponsePacket('?')
 		respPacket = hello.getStruct()
 		self.socket.send(respPacket)
 
 	def send_prepared(self):
-		print 'sending prepare'
+		#print 'sending prepare'
 		hello = ResponsePacket('p')
 		respPacket = hello.getStruct()
 		self.socket.send(respPacket)
@@ -57,22 +57,22 @@ class EtherdreamThread(threading.Thread):
 
 	def handle_packet(self, packet):
 		buf = packet.getBuffer()
-		print 'handle_packet:', len(buf)
+		#print 'handle_packet:', len(buf)
 
 		t = packet.getType()
 
 		if t == PacketTypes.DATA:
-			print 'data packet'
+			#print 'data packet'
 			self.respond_data()
 			return
 
 		if t == PacketTypes.BEGIN:
-			print 'begin packet'
+			#print 'begin packet'
 			self.respond_begin()
 			return
 
 		if t == PacketTypes.PREPARE:
-			print 'prepare packet'
+			#print 'prepare packet'
 			self.send_prepared()
 			return
 
@@ -86,17 +86,17 @@ class EtherdreamThread(threading.Thread):
 			self.handle_packet(packet)
 
 	def read_command(self):
-		print "receive"
+		#print "receive"
 		#msg = self.socket.recv(1024)
 		msg = ''
 		while len(msg) < 1024:
-			print 'a'
+			#print 'a'
 			chunk = self.socket.recv(1024 - len(msg))
-			print 'b'
-			print 'Recv: ' + chunk
+			#print 'b'
+			#print 'Recv: ' + chunk
 			if chunk == '':
 				raise SocketBroken("socket connection broken")
 			msg = msg + chunk
-		print msg
+		#print msg
 
 
