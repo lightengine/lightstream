@@ -61,9 +61,13 @@ def etherdream_process():
 def outbound_process():
 	while True:
 		try:
-			#addr = dac.find_first_dac()
 			addr = find_dac_with_mac(DEVICE_MAC)
-			print "Found %s at addr %s" % (DEVICE_MAC.macStr, addr)
+
+			print '\n    - '.join([
+				'Connecting to:',
+				'%s (mac)' % DEVICE_MAC.macStr,
+				'%s (addr)' % addr
+			])
 
 			d = dac.DAC(addr)
 			s = CircleStream()

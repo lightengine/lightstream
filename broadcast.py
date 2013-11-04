@@ -94,6 +94,8 @@ class BroadcastThread(threading.Thread):
 		with self._lock:
 			self._isRunning = True
 
+		print 'Starting UDP service broadcast...'
+
 		s = socket(AF_INET, SOCK_DGRAM)
 		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 		s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)

@@ -1,4 +1,8 @@
 
+def mac_to_str(mac):
+	# From Jacob Potter's EtherDream dac.py
+	return ':'.join('%02x' % (ord(x), ) for x in mac)
+
 class Mac(object):
 	def __init__(self, macStr):
 		self.macStr = macStr
@@ -16,3 +20,5 @@ MAC_ETHERDREAM_B = Mac('00:04:a3:87:28:cd')
 
 # Computers.
 MAC_COMPUTER_X120E = Mac('E8:9A:8F:19:1F:38')
+MAC_COMPUTER_DARWIN = Mac('00:0E:3B:26:07:6D')
+
