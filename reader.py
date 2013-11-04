@@ -6,20 +6,36 @@ from errors import *
 class SocketReader(object):
 	def __init__(self, socket):
 		self._socket = socket
+
+		self._kbytes = 8
+		self._buf = bytearray(1024 * self._kbytes)
+		self._view = memoryview(self._buf)
+
+		self._nextStart = 0 # start byte index
+		self._cmdStart = 0 # start of command index
+
+		self._cmdIndex = 0
+
+		# If we got cut off at a kb boundary, we need to know
+		# The instruction we already read.
+		self._prereadLen = 0
+		self._prereadStart = 0
+		self._prereadType = ''
+
+		self._prereadEnd = 0
+
 		self._start = 0
+		self._end = 0
 
-		self._buf = bytearray(1024*8)
-		self._kb = 0
-
-	def read(self, size=1024):
-		buf = bytearray(1024*4)
-		view = memoryview(buf)
-		nbytes = 0
+	def _recv_socket(self):
+		st = self._end
 
 		try:
-			nbytes = self._socket.recv_into(
-						view[self._start : self._start + size],
-						size)
+			view = self._view[st: st + 1024]
+			nbytes = self._socket.recv_into(view, 1024)
+
+			self._nextStart = ( st + 1024 ) % len(self._buf)
+			ed = st + nbytes
 
 		except socket.timeout as e:
 			raise SocketTimeout()
@@ -27,41 +43,43 @@ class SocketReader(object):
 		if not nbytes:
 			raise SocketBroken('Socket Connection Broken')
 
-		if not chr(buf[0]):
-			raise SocketBroken('asdfasfasdf')
+		return st, ed
 
-		tbytes = nbytes
+	def _get_cmd(self, index):
+		view = self._view[index:index+3]
+		cmd = view[0]
+		length = 1024
+		if cmd == 'd':
+			c, length = struct.unpack('<cH', str(view.tobytes()))
+		return (cmd, length)
 
-		if chr(buf[0]) == 'd':
-			print 'data packet'
-			cmd, length = struct.unpack('<cH', str(buf[0:3]))
+	def read(self):
+		st, ed = self._recv_socket()
 
-			remaining = length - nbytes
-			start = nbytes
+		cmd, length = self._get_cmd(self._cmdIndex)
 
-			while remaining > 0:
-				print 'r'
-				print 'remaining: %d' % remaining
-				read = self._continue_read(buf, view, start, remaining)
-				start += read
-				tbytes += read
-				remaining -= read
+		scanned = 0
+		if start != self._cmdIndex:
+			before = start - self._cmdIndex
+			scanned = before + 1024
 
-			print 'done reading data'
+			if scanned >= length:
+				self._cmdIndex = self._start
+				return # CASE IS DONE
 
-		return buf[0:tbytes]
+		cmdSt = self.cmdIndex
+		cmdEd = self.cmdIndex + length
 
-	def _continue_read(self, buf, view, start=0, size=1024):
-		try:
-			nbytes = self._socket.recv_into(
-						view[start:start+size],
-						size)
+		self.cmdIndex = self.cmdEd
 
-		except socket.timeout as e:
-			raise SocketTimeout()
+		if length != 1024:
+			pass
 
-		if not nbytes:
-			raise SocketBroken('Socket Connection Broken')
+		start = self._start
+		kbs = 1
+		if self._prereadLen and self._prereadType != 'd':
+			start = self._prereadStart
+			kbs += 1
 
-		return nbytes
+		return self._get_packet()
 
