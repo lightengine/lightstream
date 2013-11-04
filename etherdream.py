@@ -16,10 +16,11 @@ from errors import *
 MAC_ADDRESS = get_mac()
 
 class EtherdreamThread(threading.Thread):
-	def __init__(self, socket, address):
+	def __init__(self, socket, address, queue):
 		threading.Thread.__init__(self)
 		self.socket = socket
 		self.address = address
+		self._queue = queue
 
 		socket.settimeout(0.1) # XXX XXX XXX NOT SURE IF BAD PRACTICE :(
 
@@ -62,6 +63,7 @@ class EtherdreamThread(threading.Thread):
 		t = packet.getType()
 
 		if t == PacketTypes.DATA:
+			self._queue.put_nowait(buf)
 			#print 'data packet'
 			self.respond_data()
 			return

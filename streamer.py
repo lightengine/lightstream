@@ -46,7 +46,9 @@ class QueueStream(object):
 					yield pt
 				continue
 
-			print 'has data'
+			print data
+			data = None
+
 
 	def __init__(self):
 		self.called = False
@@ -65,6 +67,9 @@ class RepeaterProcess(Process):
 		self._queueStream = QueueStream()
 
 		super(RepeaterProcess, self).__init__()
+
+	def getQueue(self):
+		return self._queueStream._queue # TODO FIXME BAD
 
 	def run(self):
 		with self._lock:

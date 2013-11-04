@@ -22,11 +22,11 @@ from circle import CircleStream
 from find_dac import *
 from macs import *
 
-DEVICE_MAC = MAC_ETHERDREAM_B
+DEVICE_MAC = MAC_ETHERDREAM_A
 
-def etherdream_process():
+def etherdream_process(queue):
 
-	def etherdream_thread():
+	def etherdream_thread(queue):
 		bcastThread = BroadcastThread()
 		bcastThread.start()
 
@@ -42,10 +42,11 @@ def etherdream_process():
 			bcastThread.kill()
 
 			try:
-				cs = EtherdreamThread(clientsocket, address)
+				cs = EtherdreamThread(clientsocket, address, queue)
 				cs.communicate()
 
 			except SocketTimeout as e:
+				print e
 				pass
 
 			except SocketException as e:
@@ -56,18 +57,17 @@ def etherdream_process():
 			bcastThread.start()
 
 	while True:
-		thread.start_new_thread(etherdream_thread, ())
+		thread.start_new_thread(etherdream_thread, (queue,))
 		time.sleep(100000)
 
 def main():
 
-	p2 = Process(target=etherdream_process, args=())
-	p2.start()
-
 	p3 = RepeaterProcess(DEVICE_MAC)
-	p3.run()
-	#p3 = Process(target=outbound_process, args=(DEVICE_MAC,))
-	#p3.start()
+	queue = p3.getQueue()
+	p3.start()
+
+	p2 = Process(target=etherdream_process, args=(queue,))
+	p2.start()
 
 	while True:
 		time.sleep(100000)
