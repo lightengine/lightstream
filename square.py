@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from oldlib import dac
+from oldlib import dac2 as dac
 from oldlib.common import *
 from macs import *
 from find_dac import *

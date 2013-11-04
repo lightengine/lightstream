@@ -17,6 +17,7 @@ MAC_ADDRESS = get_mac()
 
 class EtherdreamThread(threading.Thread):
 	def __init__(self, socket, address, queue):
+		print 'test'
 		threading.Thread.__init__(self)
 		self.socket = socket
 		self.address = address
@@ -35,18 +36,19 @@ class EtherdreamThread(threading.Thread):
 		"""
 
 	def send_hello(self):
-		#print 'sending hello'
+		print 'sending hello'
 		hello = ResponsePacket('?')
 		respPacket = hello.getStruct()
 		self.socket.send(respPacket)
 
 	def send_prepared(self):
-		#print 'sending prepare'
+		print 'sending prepare'
 		hello = ResponsePacket('p')
 		respPacket = hello.getStruct()
 		self.socket.send(respPacket)
 
 	def respond_begin(self):
+		print 'sending begin'
 		p = ResponsePacket('b')
 		respPacket = p.getStruct()
 		self.socket.send(respPacket)
@@ -60,6 +62,7 @@ class EtherdreamThread(threading.Thread):
 		buf = packet.getBuffer()
 		#print 'handle_packet:', len(buf)
 
+		print 'Buffer Len: %d' % len(buf)
 		t = packet.getType()
 
 		if t == PacketTypes.DATA:

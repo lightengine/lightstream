@@ -37,13 +37,16 @@ def etherdream_process(queue):
 
 		while 1:
 			(clientsocket, address) = s.accept()
-			print 'accepted: %s' % str(address)
+			print 'accepted! : %s' % str(address)
 
 			bcastThread.kill()
 
 			try:
+				print 'test1'
 				cs = EtherdreamThread(clientsocket, address, queue)
+				print 'test2'
 				cs.communicate()
+				print 'test3'
 
 			except SocketTimeout as e:
 				print e

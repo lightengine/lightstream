@@ -46,8 +46,9 @@ class QueueStream(object):
 					yield pt
 				continue
 
-			print data
-			data = None
+			print 'Data:'
+			cmd, length = struct.unpack("<cH", data)
+			print cmd, length
 
 
 	def __init__(self):
@@ -91,8 +92,8 @@ class RepeaterProcess(Process):
 				d.play_stream(self._queueStream)
 
 			except Exception as e:
-				print 'Exception'
-				print e
+				#print 'Exception'
+				#print e
 				pass
 
 			with self._lock:

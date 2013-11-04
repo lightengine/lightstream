@@ -126,6 +126,10 @@ class ReceivedPacket(Packet):
 		self._readCount = 0
 		self._done = False
 
+		self._isData = False
+		self._dataLength = 0
+		self._dataRemaining = 0
+
 	def getBuffer(self):
 		return self._buf
 
@@ -136,7 +140,11 @@ class ReceivedPacket(Packet):
 		if self._done:
 			return
 
+		if self._dataRemaining:
+			size = self._dataRemaining
+
 		read = ''
+		doneReading = True
 		try:
 			read = sock.recv(size)
 
@@ -146,13 +154,27 @@ class ReceivedPacket(Packet):
 		if read == '':
 			raise SocketBroken('Socket Connection Broken')
 
+		# Data commands span multiple packets.
+		# TODO: Always read constant buffer size from socket.
+		# Use an external provider to do so.
+		if self._readCount == 0 and read[0] == 'd':
+			cmd, length = struct.unpack('<cH', read[0:3])
+
+			self._isData = True
+			self._dataLength = length
+			self._dataRemaining = length
+
+		if self._dataRemaining:
+			self._dataRemaining -= len(read)
+
 		self._readCount += 1
 		self._buf += read
 
-		if len(read) < size:
+		if self._dataRemaining > 0:
+			doneReading = False
+
+		if doneReading:
 			self._done = True
-			#print "Packet done. Read %d times. Size %d." % \
-			#		(self._readCount, len(self._buf))
 
 
 class ReceivedCommandPacket(ReceivedPacket):
