@@ -15,6 +15,8 @@ from broadcast import BroadcastPacket as BroadcastPacket2
 from broadcast import BroadcastThread
 from etherdream import EtherdreamThread, SocketBroken
 
+from streamer import *
+
 from oldlib import dac
 from circle import CircleStream
 from find_dac import *
@@ -53,38 +55,19 @@ def etherdream_process():
 			bcastThread = BroadcastThread()
 			bcastThread.start()
 
-
 	while True:
 		thread.start_new_thread(etherdream_thread, ())
 		time.sleep(100000)
-
-def outbound_process():
-	while True:
-		try:
-			addr = find_dac_with_mac(DEVICE_MAC)
-
-			print '\n    - '.join([
-				'Connecting to:',
-				'%s (mac)' % DEVICE_MAC.macStr,
-				'%s (addr)' % addr
-			])
-
-			d = dac.DAC(addr)
-			s = CircleStream()
-			d.play_stream(s)
-
-		except Exception as e:
-			print 'Exception'
-			print e
-			pass
 
 def main():
 
 	p2 = Process(target=etherdream_process, args=())
 	p2.start()
 
-	p3 = Process(target=outbound_process, args=())
-	p3.start()
+	p3 = RepeaterProcess(DEVICE_MAC)
+	p3.run()
+	#p3 = Process(target=outbound_process, args=(DEVICE_MAC,))
+	#p3.start()
 
 	while True:
 		time.sleep(100000)
