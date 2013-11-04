@@ -121,14 +121,18 @@ class DacPacket(Packet):
 	pass
 
 class ReceivedPacket(Packet):
-	def __init__(self):
-		self._buf = ''
+	def __init__(self, buf=''):
+		self._buf = buf
 		self._readCount = 0
 		self._done = False
 
 		self._isData = False
 		self._dataLength = 0
 		self._dataRemaining = 0
+
+		if buf:
+			self._readCount = 1
+			self._done = True
 
 	def getBuffer(self):
 		return self._buf
@@ -187,13 +191,21 @@ class ReceivedCommandPacket(ReceivedPacket):
 			#raise BadPacket()
 			return False
 
-		if self._buf[0] == 'd':
+		t = self._buf[0]
+		if type(self._buf) == bytearray:
+			t = chr(t)
+
+		if t == 'd':
+			print 'd-type'
 			return PacketTypes.DATA
-		if self._buf[0] == '?':
+		if t == '?':
+			print '?-type'
 			return PacketTypes.HELLO
-		if self._buf[0] == 'p':
+		if t == 'p':
+			print 'p-type'
 			return PacketTypes.PREPARE
-		if self._buf[0] == 'b':
+		if t == 'b':
+			print 'b-type'
 			return PacketTypes.BEGIN
 
 class ReceivedDataPacket(ReceivedCommandPacket):

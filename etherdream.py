@@ -12,6 +12,7 @@ from uuid import getnode as get_mac # TODO: Not really necessary
 
 from packet import *
 from errors import *
+from reader import *
 
 MAC_ADDRESS = get_mac()
 
@@ -22,6 +23,7 @@ class EtherdreamThread(threading.Thread):
 		self.socket = socket
 		self.address = address
 		self._queue = queue
+		self._reader = SocketReader(socket)
 
 		socket.settimeout(0.1) # XXX XXX XXX NOT SURE IF BAD PRACTICE :(
 
@@ -83,10 +85,15 @@ class EtherdreamThread(threading.Thread):
 
 	def main(self):
 		while 1:
+			buf = self._reader.read()
+			packet = ReceivedCommandPacket(buf)
+
+			"""
 			packet = ReceivedCommandPacket()
 
 			while packet.reading():
 				packet.read(self.socket, 1024)
+			"""
 
 			self.handle_packet(packet)
 
