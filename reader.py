@@ -31,9 +31,6 @@ class SocketReader(object):
 	def read(self):
 		self.count += 1
 
-		if self.count > 3:
-			sys.exit()
-
 		buf = ''
 		lengthRead = len(self._buf)
 		lengthExpect = 1024

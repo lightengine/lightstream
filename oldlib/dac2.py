@@ -136,6 +136,7 @@ class DAC(object):
 		first_status.dump()
 
 	def begin(self, lwm, rate):
+		print 'begin()'
 		cmd = struct.pack("<cHI", "b", lwm, rate)
 		self.conn.sendall(cmd)
 		return self.readresp("b")
@@ -154,6 +155,7 @@ class DAC(object):
 			raise e
 
 	def write(self, points):
+		print 'write()'
 		epoints = map(self.encode_point, points)
 		cmd = struct.pack("<cH", "d", len(epoints))
 		data = cmd + "".join(epoints)
@@ -161,15 +163,16 @@ class DAC(object):
 		ldata = len(data)
 		avg = ldata/npoints
 
-		print 'write() length: %d, num points: %d' % (len(data), len(points))
-		print 'Length per point: %d' % avg
-		print 'Length encoded points: %d' % len(epoints[0])
-		print 'Length command: %d' % len(cmd)
+		#print 'write() length: %d, num points: %d' % (len(data), len(points))
+		#print 'Length per point: %d' % avg
+		#print 'Length encoded points: %d' % len(epoints[0])
+		#print 'Length command: %d' % len(cmd)
 
 		self.conn.sendall(data)
 		return self.readresp("d")
 
 	def prepare(self):
+		print 'prepare()'
 		self.conn.sendall("p")
 		return self.readresp("p")
 
@@ -216,6 +219,7 @@ class DAC(object):
 			if not started:
 				self.begin(0, 30000)
 				started = 1
+				print 'started now'
 
 
 def find_dac():
