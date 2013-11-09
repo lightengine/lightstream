@@ -1,3 +1,5 @@
+import sys
+import struct
 
 class CircularByteBuffer(object):
 	SZ = 1024
@@ -12,6 +14,8 @@ class CircularByteBuffer(object):
 		self._buf = bytearray(self._length)
 		self._view = memoryview(self._buf)
 		self._socket = socket
+
+		self._instr_start = 0
 
 	def is_full(self):
 		return (self._end + self.SZ) % self._length == self._start
@@ -36,4 +40,34 @@ class CircularByteBuffer(object):
 		view = self._view[self._start:self._start + self.SZ]
 		self._start = (self._start + self.SZ) % self._length
 		return view
+
+	def instr_read(self):
+		if self._instr_start + self.SZ > self._length:
+			return False
+
+		st = self._instr_start
+		cmd = self._view[st]
+
+		print 'CMD', cmd
+
+		if cmd != 'd':
+			view = self._view[st : st+ self.SZ]
+			self._instr_start = (st + self.SZ) % self._length
+			return view
+
+		else:
+			c, length = struct.unpack('<cH', str(self._view[st:st+3].tobytes()))
+			print 'cmd', c, 'length', length
+
+			if not length:
+				return False
+
+			if st + length > self._length:
+				return False
+
+			view = self._view[st : st + length]
+			self._instr_start = (st + length) % self._length
+
+			return view
+
 

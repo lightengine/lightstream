@@ -22,7 +22,7 @@ from circle import CircleStream
 from find_dac import *
 from macs import *
 
-DEVICE_MAC = MAC_ETHERDREAM_A
+DEVICE_MAC = MAC_ETHERDREAM_B
 
 def etherdream_process(queue):
 

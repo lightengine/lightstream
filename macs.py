@@ -15,7 +15,8 @@ class Mac(object):
 		self.etherdreamStr = c
 
 # My laser projectors.
-MAC_ETHERDREAM_A = Mac('00:04:a3:3d:0b:60')
+MAC_ETHERDREAM_1 = Mac('00:04:a3:3d:0b:60')
+MAC_ETHERDREAM_A = Mac('00:04:a3:3d:70:9b')
 MAC_ETHERDREAM_B = Mac('00:04:a3:87:28:cd')
 
 # Computers.

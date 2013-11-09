@@ -38,6 +38,7 @@ class QueueStream(object):
 			pass
 
 	def produce(self):
+		print 'Streamer Produce...'
 		while True:
 			data = self.get_nowait()
 

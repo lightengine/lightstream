@@ -1,85 +1,111 @@
+import sys
 import struct
 import socket
 
 from errors import *
+from circular import *
 
 class SocketReader(object):
 	def __init__(self, socket):
 		self._socket = socket
 
-		self._kbytes = 8
-		self._buf = bytearray(1024 * self._kbytes)
-		self._view = memoryview(self._buf)
+		self.count = 0
+		self._buf = ''
 
-		self._nextStart = 0 # start byte index
-		self._cmdStart = 0 # start of command index
-
-		self._cmdIndex = 0
-
-		# If we got cut off at a kb boundary, we need to know
-		# The instruction we already read.
-		self._prereadLen = 0
-		self._prereadStart = 0
-		self._prereadType = ''
-
-		self._prereadEnd = 0
-
-		self._start = 0
-		self._end = 0
-
-	def _recv_socket(self):
-		st = self._end
-
+	def _doRead(self):
+		print '>> _doRead'
+		buf = ''
 		try:
-			view = self._view[st: st + 1024]
-			nbytes = self._socket.recv_into(view, 1024)
-
-			self._nextStart = ( st + 1024 ) % len(self._buf)
-			ed = st + nbytes
+			#print 'READING 1024'
+			buf = self._socket.recv(1024)
+			#print 'Size: %d' % len(buf)
 
 		except socket.timeout as e:
 			raise SocketTimeout()
 
-		if not nbytes:
-			raise SocketBroken('Socket Connection Broken')
-
-		return st, ed
-
-	def _get_cmd(self, index):
-		view = self._view[index:index+3]
-		cmd = view[0]
-		length = 1024
-		if cmd == 'd':
-			c, length = struct.unpack('<cH', str(view.tobytes()))
-		return (cmd, length)
+		if len(self._buf):
+			self._buf += buf
+		else:
+			self._buf = buf
 
 	def read(self):
-		st, ed = self._recv_socket()
+		self.count += 1
 
-		cmd, length = self._get_cmd(self._cmdIndex)
+		if self.count > 3:
+			sys.exit()
 
-		scanned = 0
-		if start != self._cmdIndex:
-			before = start - self._cmdIndex
-			scanned = before + 1024
+		buf = ''
+		lengthRead = len(self._buf)
+		lengthExpect = 1024
 
-			if scanned >= length:
-				self._cmdIndex = self._start
-				return # CASE IS DONE
+		print "====== read ======"
 
-		cmdSt = self.cmdIndex
-		cmdEd = self.cmdIndex + length
+		while lengthRead < lengthExpect:
+			self._doRead()
 
-		self.cmdIndex = self.cmdEd
+			lengthRead = len(self._buf)
+			#print 'Buf size: %d' % lengthRead
 
-		if length != 1024:
-			pass
+			#if lengthRead == 1:
+			#	lengthExpect = 1
 
-		start = self._start
-		kbs = 1
-		if self._prereadLen and self._prereadType != 'd':
-			start = self._prereadStart
-			kbs += 1
+			cmd = ''
+			dataSize = 0
+			if len(self._buf) > 0:
+				unpack =  struct.unpack('<c', str(self._buf[0:1]))
+				cmd = unpack[0]
 
-		return self._get_packet()
+			print 'Command was: ', cmd
+
+			if cmd != 'd':
+				lengthExpect = 1
+
+			if cmd == 'd' and len(self._buf) > 2:
+				c, length = struct.unpack('<cH', str(self._buf[0:3]))
+				dataSize = int(length)*8 + 3
+
+				print 'Data payload size is %d' % dataSize
+				lengthExpect = dataSize
+
+		print "Current buffer size is %d" % len(self._buf)
+
+		buf = self._buf[0:lengthExpect]
+		self._buf = self._buf[lengthExpect:]
+		self._buf = ''
+		return buf
+
+	def debug(self):
+
+		i = 0
+		s = []
+		for i in range(len(self._buf)):
+			if i % 2**9 == 0:
+				print ','.join(s)
+				print i
+				s = []
+
+			unpack =  struct.unpack('<c', str(self._buf[i:i+1]))
+			cmd = unpack[0]
+
+			if cmd == 'd':
+				l2 = 0
+				if i + 3 < len(self._buf):
+					c2, l2 = struct.unpack('<cH', str(self._buf[i:i+3]))
+					l2 = int(l2)
+
+				print '`d` found at: %d, length: %d' % (i, l2)
+				print ','.join(s)
+
+				s = []
+
+			s.append(cmd)
+
+		#self._buf = ''
+
+		print ','.join(s)
+
+		print "Taking size %d" % len(buf)
+		print "Remaining size %d" % len(self._buf)
+
+		self._buf = self._buf[i:]
 
