@@ -13,7 +13,7 @@ class SocketReader(object):
 		self._buf = ''
 
 	def _doRead(self):
-		print '>> _doRead'
+		#print '>> _doRead'
 		buf = ''
 		try:
 			#print 'READING 1024'
@@ -35,7 +35,7 @@ class SocketReader(object):
 		lengthRead = len(self._buf)
 		lengthExpect = 1024
 
-		print "====== read ======"
+		#print "====== read ======"
 
 		while lengthRead < lengthExpect:
 			self._doRead()
@@ -64,7 +64,7 @@ class SocketReader(object):
 				#print 'Data payload size is %d' % dataSize
 				lengthExpect = dataSize
 
-		print "Current buffer size is %d" % len(self._buf)
+		#print "Current buffer size is %d" % len(self._buf)
 
 		#buf = self._buf[0:lengthExpect]
 		#self._buf = self._buf[lengthExpect:]

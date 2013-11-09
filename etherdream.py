@@ -65,11 +65,12 @@ class EtherdreamThread(threading.Thread):
 		buf = packet.getBuffer()
 		#print 'handle_packet:', len(buf)
 
-		print 'Buffer Len: %d' % len(buf)
+		#print 'Buffer Len: %d' % len(buf)
 		t = packet.getType()
 
 		if t == PacketTypes.DATA:
-			#self._queue.put_nowait(buf)
+			if self._queue:
+				self._queue.put_nowait(buf)
 			#print 'data packet'
 			self.respond_data()
 			return
@@ -86,7 +87,7 @@ class EtherdreamThread(threading.Thread):
 
 	def main(self):
 		while 1:
-			print 'read()'
+			#print 'read()'
 			buf = self._reader.read()
 			packet = ReceivedCommandPacket(buf)
 

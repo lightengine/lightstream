@@ -24,6 +24,41 @@ class QueueStream(object):
 						CMAX/LASER_POWER_DENOM))
 		return points
 
+	def produce_circle2(self):
+		RESIZE_SPEED_INV = 200
+		CMAX = 30000
+		MAXRAD = 10260
+		USERAD = MAXRAD/2
+		LASER_POWER_DENOM = 1.0
+		SAMPLE_PTS = 100 # 30 and below very damaging to galvos
+		rad = int(USERAD)
+		points = []
+		for i in xrange(0, SAMPLE_PTS, 1):
+			i = float(i) / SAMPLE_PTS * 2 * math.pi
+			x = int(math.cos(i) * rad)
+			y = int(math.sin(i) * rad)
+			points.append((x, y, 0, CMAX, CMAX))
+
+		return points
+
+	def extract_points(self, buf):
+		if len(buf) < 5:
+			return False
+
+		cmd, length = struct.unpack('<cH', str(buf[0:3]))
+		data = buf[3:]
+
+		if cmd != 'd':
+			return False
+
+		print 'Data packets: %d' % length
+
+		for i in xrange(length):
+			j = i*18
+			d = data[j:j+18]
+			#print d
+
+		return self.produce_circle2()
 
 	def get_nowait(self):
 		try:
@@ -44,6 +79,11 @@ class QueueStream(object):
 
 			if not data:
 				for pt in self.produce_circle():
+					yield pt
+				continue
+
+			if data:
+				for pt in self.produce_circle2():
 					yield pt
 				continue
 

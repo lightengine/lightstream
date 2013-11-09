@@ -154,6 +154,10 @@ class DAC(object):
 			print point
 			raise e
 
+	def write_raw(self, raw):
+		self.conn.sendall(raw)
+		return self.readresp('d')
+
 	def write(self, points):
 		print 'write()'
 		epoints = map(self.encode_point, points)

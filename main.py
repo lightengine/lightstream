@@ -65,11 +65,9 @@ def etherdream_process(queue):
 
 def main():
 
-	#p3 = RepeaterProcess(DEVICE_MAC)
-	#queue = p3.getQueue()
-	#p3.start()
-
-	queue = None
+	p3 = RepeaterProcess(DEVICE_MAC)
+	queue = p3.getQueue()
+	p3.start()
 
 	p2 = Process(target=etherdream_process, args=(queue,))
 	p2.start()
