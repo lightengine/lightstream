@@ -159,7 +159,7 @@ class DAC(object):
 		return self.readresp('d')
 
 	def write(self, points):
-		print 'write()'
+		#print 'write()'
 		epoints = map(self.encode_point, points)
 		cmd = struct.pack("<cH", "d", len(epoints))
 		data = cmd + "".join(epoints)
@@ -176,7 +176,7 @@ class DAC(object):
 		return self.readresp("d")
 
 	def prepare(self):
-		print 'prepare()'
+		#print 'prepare()'
 		self.conn.sendall("p")
 		return self.readresp("p")
 

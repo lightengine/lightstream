@@ -51,7 +51,7 @@ class QueueStream(object):
 		if cmd != 'd':
 			return False
 
-		print 'Data packets: %d' % length
+		#print 'Data packets: %d' % length
 
 		for i in xrange(length):
 			j = i*18
@@ -73,7 +73,7 @@ class QueueStream(object):
 			pass
 
 	def produce(self):
-		print 'Streamer Produce...'
+		#print 'Streamer Produce...'
 		while True:
 			data = self.get_nowait()
 
@@ -87,9 +87,9 @@ class QueueStream(object):
 					yield pt
 				continue
 
-			print 'Data:'
+			#print 'Data:'
 			cmd, length = struct.unpack("<cH", data)
-			print cmd, length
+			#print cmd, length
 
 
 	def __init__(self):

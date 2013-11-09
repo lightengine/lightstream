@@ -196,16 +196,16 @@ class ReceivedCommandPacket(ReceivedPacket):
 			t = chr(t)
 
 		if t == 'd':
-			print 'd-type'
+			#print 'd-type'
 			return PacketTypes.DATA
 		if t == '?':
-			print '?-type'
+			#print '?-type'
 			return PacketTypes.HELLO
 		if t == 'p':
-			print 'p-type'
+			#print 'p-type'
 			return PacketTypes.PREPARE
 		if t == 'b':
-			print 'b-type'
+			#print 'b-type'
 			return PacketTypes.BEGIN
 
 class ReceivedDataPacket(ReceivedCommandPacket):
