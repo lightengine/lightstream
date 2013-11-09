@@ -55,23 +55,30 @@ class SocketReader(object):
 				unpack =  struct.unpack('<c', str(self._buf[0:1]))
 				cmd = unpack[0]
 
-			print 'Command was: ', cmd
+			#print 'Command was: ', cmd
 
 			if cmd != 'd':
 				lengthExpect = 1
 
 			if cmd == 'd' and len(self._buf) > 2:
 				c, length = struct.unpack('<cH', str(self._buf[0:3]))
-				dataSize = int(length)*8 + 3
+				dataSize = int(length) * 18 + 3
 
-				print 'Data payload size is %d' % dataSize
+				#print 'Data payload size is %d' % dataSize
 				lengthExpect = dataSize
 
 		print "Current buffer size is %d" % len(self._buf)
 
-		buf = self._buf[0:lengthExpect]
-		self._buf = self._buf[lengthExpect:]
+		#buf = self._buf[0:lengthExpect]
+		#self._buf = self._buf[lengthExpect:]
+		#self._buf = ''
+
+		#self.debug()
+
+		buf = self._buf
 		self._buf = ''
+
+
 		return buf
 
 	def debug(self):
@@ -101,11 +108,6 @@ class SocketReader(object):
 			s.append(cmd)
 
 		#self._buf = ''
+		#print ','.join(s)
 
-		print ','.join(s)
-
-		print "Taking size %d" % len(buf)
-		print "Remaining size %d" % len(self._buf)
-
-		self._buf = self._buf[i:]
 

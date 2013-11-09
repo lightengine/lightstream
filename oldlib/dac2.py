@@ -157,11 +157,15 @@ class DAC(object):
 		epoints = map(self.encode_point, points)
 		cmd = struct.pack("<cH", "d", len(epoints))
 		data = cmd + "".join(epoints)
-		print 'write() length: %d, num points: %d' % (len(data), len(points))
 		npoints = len(points)
 		ldata = len(data)
 		avg = ldata/npoints
+
+		print 'write() length: %d, num points: %d' % (len(data), len(points))
 		print 'Length per point: %d' % avg
+		print 'Length encoded points: %d' % len(epoints[0])
+		print 'Length command: %d' % len(cmd)
+
 		self.conn.sendall(data)
 		return self.readresp("d")
 
