@@ -49,19 +49,31 @@ def etherdream_process(queue):
 				print 'test3'
 
 			except SocketTimeout as e:
-				print e
+				print "Exception 2"
+				#print e
 				pass
 
 			except SocketException as e:
-				print "Etherdream got an exception..."
-				print e
+				print "Exception 3"
+				#print "Etherdream got an exception..."
+				#print e
 
 			bcastThread = BroadcastThread()
 			bcastThread.start()
 
 	while True:
-		thread.start_new_thread(etherdream_thread, (queue,))
-		time.sleep(100000)
+		t = None
+		try:
+			if t:
+				t.kill()
+			t = thread.start_new_thread(etherdream_thread, (queue,))
+			time.sleep(100000)
+
+		except Exception as e:
+			t.kill()
+			print "Exception 1"
+			#print e
+			pass
 
 def main():
 

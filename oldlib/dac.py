@@ -88,7 +88,7 @@ class BroadcastPacket(object):
 		]
 		for l in lines:
 			print prefix + l
-		self.status.dump(prefix)
+		#self.status.dump(prefix)
 
 
 class DAC(object):
@@ -127,13 +127,13 @@ class DAC(object):
 		"""Connect to the DAC over TCP."""
 		conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		conn.connect((host, port))
-		print "Connected to %s:%s" % (host, port)
+		#print "Connected to %s:%s" % (host, port)
 		self.conn = conn
 		self.buf = ""
 
 		# Read the "hello" message
 		first_status = self.readresp("?")
-		first_status.dump()
+		#first_status.dump()
 
 	def begin(self, lwm, rate):
 		cmd = struct.pack("<cHI", "b", lwm, rate)
@@ -149,8 +149,8 @@ class DAC(object):
 		try:
 			return pack_point(*point)
 		except Exception as e:
-			print "Exception"
-			print point
+			##print "Exception"
+			#print point
 			raise e
 
 	def write(self, points):
@@ -218,13 +218,13 @@ def find_dac():
 		data, addr = s.recvfrom(1024)
 		bp = BroadcastPacket(data)
 
-		print "Packet from %s: " % (addr, )
-		bp.dump()
+		#print "Packet from %s: " % (addr, )
+		#bp.dump()
 
 def find_first_dac():
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s.bind(("0.0.0.0", 7654))
 	data, addr = s.recvfrom(1024)
 	bp = BroadcastPacket(data)
-	print "Packet from %s: " % (addr, )
+	#print "Packet from %s: " % (addr, )
 	return addr[0]
