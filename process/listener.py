@@ -85,10 +85,8 @@ class EtherdreamThread(threading.Thread):
 	def main(self):
 		while 1:
 			try:
-				print 'read'
 				buf = self._reader.read()
 				packet = ReceivedCommandPacket(buf)
-				print 'handle'
 				self.handle_packet(packet)
 			except:
 				print 'Exception!!!!'
@@ -111,16 +109,17 @@ class EtherdreamThread(threading.Thread):
 def etherdream_process(queue):
 
 	def etherdream_thread(queue):
-		bcastThread = BroadcastThread()
-		bcastThread.start()
-
+		bcastThread = None
 		s = None
-		#s.setblocking(0)
 
 		while 1:
 			try:
+				bcastThread = BroadcastThread()
+				bcastThread.start()
+
 				s = socket.socket(AF_INET, SOCK_STREAM)
 				s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+				#s.setblocking(0)
 				s.bind(('localhost', 7765))
 				s.listen(3)
 
@@ -130,32 +129,20 @@ def etherdream_process(queue):
 
 				bcastThread.kill()
 
-				print 'test1'
 				cs = EtherdreamThread(clientsocket, address, queue)
-				print 'test2'
-				cs.communicate()
-				print 'test3'
+				cs.communicate() # XXX: Main loop
 
 			except socket.timeout as e:
 				print "Timeout exception"
-				continue
 
 			except SocketTimeout as e:
 				print "Exception 2"
-				#print e
-				pass
 
 			except SocketException as e:
 				print "Exception 3"
-				#print "Etherdream got an exception..."
-				#print e
 
 			except Exception as e:
 				print 'Exception 4'
-				pass
-
-			bcastThread = BroadcastThread()
-			bcastThread.start()
 
 	while True:
 		t = None
@@ -166,7 +153,6 @@ def etherdream_process(queue):
 			time.sleep(100000)
 
 		except Exception as e:
-			print "Exception 1"
-			print e
+			print "Exception Listener Main"
 			pass
 

@@ -14,16 +14,10 @@ class SocketReader(object):
 		self._buf = ''
 
 	def _doRead(self):
-		#print '>> _doRead'
 		buf = ''
 		try:
-			#print 'READING 1024'
-			print 'select'
 			select.select([self._socket], [], [], 0.5)
-			print 'recv'
 			buf = self._socket.recv(1024)
-			print 'done with recv'
-			#print 'Size: %d' % len(buf)
 
 		except socket.timeout as e:
 			print 'EXCEPT 1'
@@ -31,9 +25,6 @@ class SocketReader(object):
 
 		except Exception as e:
 			print 'EXCEPT 2'
-			print e
-			print type(e)
-			raise e
 
 		if not buf:
 			print 'NOTHING READ!'
@@ -51,13 +42,10 @@ class SocketReader(object):
 		lengthRead = len(self._buf)
 		lengthExpect = 1024
 
-		#print "====== read ======"
-
 		while lengthRead < lengthExpect:
 			self._doRead()
 
 			lengthRead = len(self._buf)
-			#print 'Buf size: %d' % lengthRead
 
 			#if lengthRead == 1:
 			#	lengthExpect = 1
@@ -68,8 +56,6 @@ class SocketReader(object):
 				unpack =  struct.unpack('<c', str(self._buf[0:1]))
 				cmd = unpack[0]
 
-			#print 'Command was: ', cmd
-
 			if cmd != 'd':
 				lengthExpect = 1
 
@@ -77,50 +63,10 @@ class SocketReader(object):
 				c, length = struct.unpack('<cH', str(self._buf[0:3]))
 				dataSize = int(length) * 18 + 3
 
-				#print 'Data payload size is %d' % dataSize
 				lengthExpect = dataSize
-
-		#print "Current buffer size is %d" % len(self._buf)
-
-		#buf = self._buf[0:lengthExpect]
-		#self._buf = self._buf[lengthExpect:]
-		#self._buf = ''
-
-		#self.debug()
 
 		buf = self._buf
 		self._buf = ''
 
-
 		return buf
-
-	def debug(self):
-
-		i = 0
-		s = []
-		for i in range(len(self._buf)):
-			if i % 2**9 == 0:
-				print ','.join(s)
-				print i
-				s = []
-
-			unpack =  struct.unpack('<c', str(self._buf[i:i+1]))
-			cmd = unpack[0]
-
-			if cmd == 'd':
-				l2 = 0
-				if i + 3 < len(self._buf):
-					c2, l2 = struct.unpack('<cH', str(self._buf[i:i+3]))
-					l2 = int(l2)
-
-				print '`d` found at: %d, length: %d' % (i, l2)
-				print ','.join(s)
-
-				s = []
-
-			s.append(cmd)
-
-		#self._buf = ''
-		#print ','.join(s)
-
 
