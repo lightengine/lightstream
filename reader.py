@@ -1,6 +1,7 @@
 import sys
 import struct
 import socket
+import select
 
 from errors import *
 from circular import *
@@ -17,11 +18,26 @@ class SocketReader(object):
 		buf = ''
 		try:
 			#print 'READING 1024'
+			print 'select'
+			select.select([self._socket], [], [], 0.5)
+			print 'recv'
 			buf = self._socket.recv(1024)
+			print 'done with recv'
 			#print 'Size: %d' % len(buf)
 
 		except socket.timeout as e:
+			print 'EXCEPT 1'
 			raise SocketTimeout()
+
+		except Exception as e:
+			print 'EXCEPT 2'
+			print e
+			print type(e)
+			raise e
+
+		if not buf:
+			print 'NOTHING READ!'
+			raise Exception
 
 		if len(self._buf):
 			self._buf += buf

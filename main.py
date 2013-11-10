@@ -13,7 +13,6 @@ from multiprocessing import Process, Queue
 from errors import *
 from broadcast import BroadcastPacket as BroadcastPacket2
 from broadcast import BroadcastThread
-from etherdream import EtherdreamThread, SocketBroken
 
 from streamer import *
 
@@ -24,56 +23,8 @@ from macs import *
 
 DEVICE_MAC = MAC_ETHERDREAM_B
 
-def etherdream_process(queue):
-
-	def etherdream_thread(queue):
-		bcastThread = BroadcastThread()
-		bcastThread.start()
-
-		s = socket(AF_INET, SOCK_STREAM)
-		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-		s.bind(('localhost', 7765))
-		s.listen(3)
-
-		while 1:
-			(clientsocket, address) = s.accept()
-			print 'accepted! : %s' % str(address)
-
-			bcastThread.kill()
-
-			try:
-				print 'test1'
-				cs = EtherdreamThread(clientsocket, address, queue)
-				print 'test2'
-				cs.communicate()
-				print 'test3'
-
-			except SocketTimeout as e:
-				print "Exception 2"
-				#print e
-				pass
-
-			except SocketException as e:
-				print "Exception 3"
-				#print "Etherdream got an exception..."
-				#print e
-
-			bcastThread = BroadcastThread()
-			bcastThread.start()
-
-	while True:
-		t = None
-		try:
-			if t:
-				t.kill()
-			t = thread.start_new_thread(etherdream_thread, (queue,))
-			time.sleep(100000)
-
-		except Exception as e:
-			t.kill()
-			print "Exception 1"
-			#print e
-			pass
+from process.listener import *
+from process.courier import *
 
 def main():
 
