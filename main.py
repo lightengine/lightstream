@@ -17,11 +17,10 @@ from broadcast import BroadcastThread
 from streamer import *
 
 from oldlib import dac
-from circle import CircleStream
 from find_dac import *
 from macs import *
 
-DEVICE_MAC = MAC_ETHERDREAM_B
+DEVICE_MAC = MAC_ETHERDREAM_A
 
 from process.listener import *
 from process.courier import *

@@ -74,7 +74,6 @@ class BroadcastPacket(object):
 
 		return struct_mac + struct_info + struct_status
 
-
 class BroadcastThread(threading.Thread):
 
 	# Host options: '', 255.255.255.255, 'localhost', ...
