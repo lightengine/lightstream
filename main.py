@@ -25,13 +25,18 @@ DEVICE_MAC = MAC_ETHERDREAM_A
 from process.listener import *
 from process.courier import *
 
+from vdac.vdac import VirtualDac # TODO IMPORT SIMPLIFICATION
+
 def main():
 
 	p3 = RepeaterProcess(DEVICE_MAC)
 	queue = p3.getQueue()
 	p3.start()
 
-	p2 = Process(target=etherdream_process, args=(queue,))
+	#p2 = Process(target=etherdream_process, args=(queue,))
+	#p2.start()
+
+	p2 = VirtualDac(queue)
 	p2.start()
 
 	while True:

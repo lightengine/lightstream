@@ -123,11 +123,13 @@ class RepeaterProcess(Process):
 			try:
 				addr = find_dac_with_mac(self._macObj)
 
+				"""
 				print '\n    - '.join([
 					'Connecting to:',
 					'%s (mac)' % self._macObj.macStr,
 					'%s (addr)' % addr
 				])
+				"""
 
 				d = dac.DAC(addr)
 				d.play_stream(self._queueStream)

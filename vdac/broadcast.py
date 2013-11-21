@@ -122,3 +122,18 @@ class BroadcastThread(threading.Thread):
 		with self._lock:
 			self._isRunning = False
 
+def broadcast_get_client():
+	bt = BroadcastThread()
+	bt.start()
+
+	s = socket(AF_INET, SOCK_STREAM)
+	s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+
+	s.bind(('localhost', 7765))
+	s.listen(3)
+
+	(cs, addr) = s.accept()
+
+	bt.kill()
+
+	return (cs, addr)
