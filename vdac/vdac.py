@@ -1,8 +1,9 @@
-
 from multiprocessing import Process, Queue, RLock
 from socket import *
 
-from broadcast import broadcast_get_client # TODO FIX IMPORT LIB NAMES
+#from broadcast import broadcast_get_client # TODO FIX IMPORT LIB NAMES
+from broadcast import BroadcastThread
+from etherdream import EtherdreamThread
 from temp import *
 
 class VirtualDac(Process):
@@ -38,11 +39,28 @@ class VirtualDac(Process):
 		running = True
 
 		while running:
+			bt = BroadcastThread()
+
 			try:
 				print 'Broadcasting...'
-				csock, addr = broadcast_get_client()
-				print 'Got client', addr
-				print csock
+
+				bt.start()
+
+				# Listen for client connection
+				s = socket(AF_INET, SOCK_STREAM)
+				s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+				s.bind(('localhost', 7765))
+				s.listen(3)
+
+				(csock, addr) = s.accept()
+
+				bt.kill()
+
+				#return (csock, addr)
+				#csock, addr = broadcast_get_client()
+
+				print 'Got client', addr, csock
+
 				cs = EtherdreamThread(csock, addr, self._queue)
 				cs.communicate()
 

@@ -3,9 +3,6 @@ import struct
 import socket
 import select
 
-from errors import *
-from circular import *
-
 class SocketReader(object):
 	def __init__(self, socket):
 		self._socket = socket
