@@ -4,7 +4,6 @@ from socket import *
 #from broadcast import broadcast_get_client # TODO FIX IMPORT LIB NAMES
 from broadcast import BroadcastThread
 from etherdream import EtherdreamThread
-from temp import *
 
 class VirtualDac(Process):
 	"""
@@ -33,6 +32,15 @@ class VirtualDac(Process):
 			self._queue = queue
 
 	def run(self):
+
+		def get_client():
+			# Listen for client connection
+			s = socket(AF_INET, SOCK_STREAM)
+			s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+			s.bind(('localhost', 7765))
+			s.listen(3)
+			return s.accept() # return (csock, addr)
+
 		with self._lock:
 			self._is_running = True
 
@@ -46,23 +54,13 @@ class VirtualDac(Process):
 
 				bt.start()
 
-				# Listen for client connection
-				s = socket(AF_INET, SOCK_STREAM)
-				s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-				s.bind(('localhost', 7765))
-				s.listen(3)
-
-				(csock, addr) = s.accept()
+				csock, addr = get_client()
 
 				bt.kill()
 
-				#return (csock, addr)
-				#csock, addr = broadcast_get_client()
-
 				print 'Got client', addr, csock
 
-				cs = EtherdreamThread(csock, addr, self._queue)
-				cs.communicate()
+				EtherdreamThread(csock, addr, self._queue).main()
 
 			except Exception as e:
 				print e

@@ -1,28 +1,18 @@
 #!/usr/bin/env python
 
-import struct
+import time
 import thread
 import threading
-import time
-
-from socket import *
 from multiprocessing import Process, Queue
-
-from errors import *
-from broadcast import BroadcastPacket as BroadcastPacket2
-from broadcast import BroadcastThread
-
-from streamer import *
 
 from oldlib import dac
 from find_dac import *
-from macs import *
+from net.macs import *
 
 DEVICE_MAC = MAC_ETHERDREAM_A
 
-from process.courier import *
-
 from vdac.vdac import VirtualDac # TODO IMPORT SIMPLIFICATION
+from process.courier import *
 
 def main():
 

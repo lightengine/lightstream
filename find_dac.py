@@ -1,6 +1,6 @@
 from socket import *
 
-from macs import *
+from net.macs import *
 from oldlib.dac import BroadcastPacket
 
 BCAST_PORT = 7654

@@ -1,7 +1,7 @@
 import math
 from multiprocessing import Process, Queue, RLock
 
-from macs import *
+from net.macs import *
 from find_dac import *
 from oldlib import dac
 

@@ -1,15 +1,26 @@
 import struct
+from uuid import getnode as get_mac
 
-class PacketTypes(object):
-	HELLO = 1
-	PREPARE = 2
-	BEGIN = 3
-	DATA = 4
+class BroadcastPacket(object):
+	"""
+	Represents an EtherDream broadcast packet.
+	For example, my EtherDream outputs:
+		- MAC: 00:04:a3:87:28:cd
+		- HW 2, SW 2
+		- Capabilities: max 1799 points, 100000 kpps
+		- Light engine: state 0, flags 0x0
+		- Playback: state 0, flags 0x0
+		- Buffer: 0 points
+		- Playback: 0 kpps, 0 points played
+		- Source: 0, flags 0x0
+	"""
 
-
-
-class Packet(object):
 	def __init__(self):
+		self.mac = get_mac()
+		self.hw_rev = 2
+		self.sw_rev = 2
+		self.buffer_cap = 1799
+		self.max_pt_rate = 100000
 		self.proto = 0
 		self.le_state = 0
 		self.play_state = 0
@@ -21,7 +32,7 @@ class Packet(object):
 		self.point_rate = 0
 		self.point_count = 0
 
-	def getStruct(self):
+	def toStruct(self):
 		byts = []
 		mac = self.mac
 		while mac > 0:
@@ -60,10 +71,19 @@ class Packet(object):
 
 		return struct_mac + struct_info + struct_status
 
+class ResponsePacket(object):
+	def __init__(self, cmd):
+		self.proto = 0
+		self.le_state = 0
+		self.play_state = 0
+		self.source = 0
+		self.le_flags = 0
+		self.play_flags = 0
+		self.source_flags = 0
+		self.fullness = 0
+		self.point_rate = 0
+		self.point_count = 0
 
-class ResponsePacket(Packet):
-	def __init__(self, cmd='?'):
-		super(ResponsePacket, self).__init__()
 		self.ack = None
 		self.cmd = None
 		self.setAck()
@@ -102,97 +122,4 @@ class ResponsePacket(Packet):
 				source_flags, fullness, point_rate, point_count)[:20]
 
 		return struct_data + struct_status
-
-
-
-class ReceivedPacket(Packet):
-	def __init__(self, buf=''):
-		self._buf = buf
-		self._readCount = 0
-		self._done = False
-
-		self._isData = False
-		self._dataLength = 0
-		self._dataRemaining = 0
-
-		if buf:
-			self._readCount = 1
-			self._done = True
-
-	def getBuffer(self):
-		return self._buf
-
-	def reading(self):
-		return not self._done
-
-	def read(self, sock, size=1024):
-		if self._done:
-			return
-
-		if self._dataRemaining:
-			size = self._dataRemaining
-
-		read = ''
-		doneReading = True
-		try:
-			read = sock.recv(size)
-
-		except socket.timeout as e:
-			raise SocketTimeout()
-
-		if read == '':
-			raise SocketBroken('Socket Connection Broken')
-
-		# Data commands span multiple packets.
-		# TODO: Always read constant buffer size from socket.
-		# Use an external provider to do so.
-		if self._readCount == 0 and read[0] == 'd':
-			cmd, length = struct.unpack('<cH', read[0:3])
-
-			self._isData = True
-			self._dataLength = length
-			self._dataRemaining = length
-
-		if self._dataRemaining:
-			self._dataRemaining -= len(read)
-
-		self._readCount += 1
-		self._buf += read
-
-		if self._dataRemaining > 0:
-			doneReading = False
-
-		if doneReading:
-			self._done = True
-
-
-
-class ReceivedCommandPacket(ReceivedPacket):
-
-	def getType(self):
-		if self.reading():
-			return False
-
-		if len(self._buf) < 1:
-			#raise BadPacket()
-			return False
-
-		t = self._buf[0]
-		if type(self._buf) == bytearray:
-			t = chr(t)
-
-		if t == 'd':
-			#print 'd-type'
-			return PacketTypes.DATA
-		if t == '?':
-			#print '?-type'
-			return PacketTypes.HELLO
-		if t == 'p':
-			#print 'p-type'
-			return PacketTypes.PREPARE
-		if t == 'b':
-			#print 'b-type'
-			return PacketTypes.BEGIN
-
-
 

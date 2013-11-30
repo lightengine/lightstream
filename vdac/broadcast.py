@@ -2,7 +2,7 @@ import time
 import threading
 from socket import *
 
-from bcast_packet import BroadcastPacket
+from packets import BroadcastPacket
 
 class BroadcastThread(threading.Thread):
 
@@ -68,3 +68,4 @@ def broadcast_get_client():
 
 	return (cs, addr)
 """
+
