@@ -93,16 +93,9 @@ class QueueStream(object):
 					d = data[off:off+18]
 					off += 18
 
-					f, x, y, r, g, b, i, u1, u2 = struct.unpack("<HhhHHHHHH", d)
-					#print f, x, y, r, g, b, i, u1, u2
+					f, x, y, r, g, b, i, u1, u2 = struct.unpack('<HhhHHHHHH', d)
 					yield (x, y, r, g, b)
-					#flags, x, y, r, g, b, i, u1, u2)
 
-
-
-				#print 'Len data: ', l, m, type(data)
-				#for pt in self.produce_circle2():
-				#	yield pt
 				continue
 
 			if not data:

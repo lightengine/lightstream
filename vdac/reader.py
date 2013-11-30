@@ -18,10 +18,11 @@ class SocketReader(object):
 
 		except socket.timeout as e:
 			print 'EXCEPT 1'
-			raise SocketTimeout()
+			raise e
 
 		except Exception as e:
 			print 'EXCEPT 2'
+			raise e
 
 		if not buf:
 			print 'NOTHING READ!'
