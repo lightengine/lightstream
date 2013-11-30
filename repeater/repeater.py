@@ -7,11 +7,11 @@ from oldlib import dac
 from stream import QueueStream
 
 class RepeaterProcess(Process):
-	def __init__(self, macObj):
+	def __init__(self, macObj, queue=None):
 		self._isRunning = False # XXX: A locked resource
 		self._lock = RLock()
 		self._macObj = macObj
-		self._queueStream = QueueStream()
+		self._queueStream = QueueStream(queue=queue)
 
 		super(RepeaterProcess, self).__init__()
 

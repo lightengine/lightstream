@@ -14,12 +14,11 @@ DEVICE_MAC = MAC_ETHERDREAM_A
 def main():
 
 	p1 = VirtualDac(
-			host='255.255.255.255'
+		host='255.255.255.255'
 	)
-	q = p1.get_queue()
 	p1.start()
 
-	p2 = RepeaterProcess(DEVICE_MAC)
+	p2 = RepeaterProcess(DEVICE_MAC, p1.get_queue())
 	p2.start()
 
 	p1.join()

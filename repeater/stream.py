@@ -1,7 +1,17 @@
 import math
+import struct
 from multiprocessing import Process, Queue, RLock
 
 class QueueStream(object):
+
+	def __init__(self, queue=None):
+		if not queue:
+			queue = Queue()
+
+		self.called = False
+		self._queue = queue
+		self.stream = self.produce()
+
 	def produce_circle(self):
 		RESIZE_SPEED_INV = 200
 		CMAX = 30000
@@ -73,13 +83,30 @@ class QueueStream(object):
 		while True:
 			data = self.get_nowait()
 
-			if not data:
-				for pt in self.produce_circle():
-					yield pt
+			if data:
+				# Index of instructions
+				l = len(data)
+				numPoints = (l - 3)/18
+				off = 3
+				for i in xrange(numPoints):
+
+					d = data[off:off+18]
+					off += 18
+
+					f, x, y, r, g, b, i, u1, u2 = struct.unpack("<HhhHHHHHH", d)
+					#print f, x, y, r, g, b, i, u1, u2
+					yield (x, y, r, g, b)
+					#flags, x, y, r, g, b, i, u1, u2)
+
+
+
+				#print 'Len data: ', l, m, type(data)
+				#for pt in self.produce_circle2():
+				#	yield pt
 				continue
 
-			if data:
-				for pt in self.produce_circle2():
+			if not data:
+				for pt in self.produce_circle():
 					yield pt
 				continue
 
@@ -87,11 +114,6 @@ class QueueStream(object):
 			cmd, length = struct.unpack("<cH", data)
 			#print cmd, length
 
-
-	def __init__(self):
-		self.called = False
-		self._queue = Queue()
-		self.stream = self.produce()
 
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
