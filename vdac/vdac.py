@@ -14,7 +14,7 @@ class VirtualDac(Process):
 	usage.
 	"""
 
-	def __init__(self, queue=None):
+	def __init__(self, queue=None, host=''):
 		super(VirtualDac, self).__init__()
 
 		if not queue:
@@ -23,6 +23,8 @@ class VirtualDac(Process):
 		self._queue = queue
 		self._is_running = False
 		self._lock = RLock()
+
+		self._host = host
 
 	def get_queue(self):
 		return self._queue
@@ -42,7 +44,7 @@ class VirtualDac(Process):
 			# Listen for client connection
 			s = socket(AF_INET, SOCK_STREAM)
 			s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-			s.bind(('localhost', 7765))
+			s.bind(('', 7765))
 			s.listen(3)
 			return s.accept() # return (csock, addr)
 
@@ -52,7 +54,7 @@ class VirtualDac(Process):
 		running = True
 
 		while running:
-			bt = BroadcastThread()
+			bt = BroadcastThread(self._host)
 
 			try:
 				print 'Broadcasting...'

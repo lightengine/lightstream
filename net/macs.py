@@ -1,5 +1,23 @@
+import struct
 
 def mac_to_str(mac):
+	"""
+	Convert a `mac-type` to a colon-separated user-friendly string.
+		* uuid.getnode (long)
+		* EtherDream packet subset/parsed struct (str)
+	"""
+
+	# Mac returned by uuid module's `getnode` is a long
+	if type(mac) is long:
+		byts = []
+		while mac > 0:
+			d = mac & 0xFF
+			byts.append('%02x' %d)
+			mac >>= 8
+
+		byteStr = int(''.join(byts), 16)
+		mac = struct.pack('<' + 'Q', byteStr)[:6] # Two wasted bits
+
 	# From Jacob Potter's EtherDream dac.py
 	return ':'.join('%02x' % (ord(x), ) for x in mac)
 

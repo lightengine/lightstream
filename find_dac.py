@@ -9,6 +9,9 @@ def find_dac_with_mac(mac):
 	s = socket(AF_INET, SOCK_DGRAM)
 	s.bind(('0.0.0.0', BCAST_PORT))
 
+	if type(mac) is str:
+		mac = Mac(mac)
+
 	print 'Looking for DAC (%s)' % mac.macStr
 	macsFound = set()
 

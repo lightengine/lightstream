@@ -33,7 +33,11 @@ class BroadcastThread(threading.Thread):
 		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 		s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
-		bp = BroadcastPacket().toStruct()
+		bp = BroadcastPacket()
+
+		print 'Broadcasting as available MAC %s' % bp.getMacStr()
+
+		bp = bp.toStruct()
 
 		running = True
 

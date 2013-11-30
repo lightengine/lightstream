@@ -1,5 +1,6 @@
 import struct
 from uuid import getnode as get_mac
+from net.macs import mac_to_str
 
 class BroadcastPacket(object):
 	"""
@@ -31,6 +32,9 @@ class BroadcastPacket(object):
 		self.fullness = 0
 		self.point_rate = 0
 		self.point_count = 0
+
+	def getMacStr(self):
+		return mac_to_str(self.mac)
 
 	def toStruct(self):
 		byts = []

@@ -13,7 +13,9 @@ DEVICE_MAC = MAC_ETHERDREAM_A
 
 def main():
 
-	p1 = VirtualDac()
+	p1 = VirtualDac(
+			host='255.255.255.255'
+	)
 	q = p1.get_queue()
 	p1.start()
 
@@ -22,7 +24,6 @@ def main():
 
 	p1.join()
 	p2.join()
-
 
 if __name__ == '__main__':
 	main()
