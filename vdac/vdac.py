@@ -32,6 +32,11 @@ class VirtualDac(Process):
 			self._queue = queue
 
 	def run(self):
+		"""
+		Virtual dac mainloop.
+		Broadcasts availability, accepts connections, queues
+		inbound data packets. Self-healing, too.
+		"""
 
 		def get_client():
 			# Listen for client connection
@@ -51,11 +56,8 @@ class VirtualDac(Process):
 
 			try:
 				print 'Broadcasting...'
-
 				bt.start()
-
 				csock, addr = get_client()
-
 				bt.kill()
 
 				print 'Got client', addr, csock
