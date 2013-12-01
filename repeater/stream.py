@@ -13,24 +13,6 @@ class QueueStream(object):
 		self._queue = queue
 		self.stream = self.produce()
 
-	def produce_circle(self):
-		RESIZE_SPEED_INV = 200
-		CMAX = 30000
-		MAXRAD = 10260
-		USERAD = MAXRAD
-		LASER_POWER_DENOM = 1.0
-		SAMPLE_PTS = 100 # 30 and below very damaging to galvos
-		rad = int(USERAD)
-		points = []
-		for i in xrange(0, SAMPLE_PTS, 1):
-			i = float(i) / SAMPLE_PTS * 2 * math.pi
-			x = int(math.cos(i) * rad)
-			y = int(math.sin(i) * rad)
-			points.append((x, y, CMAX/LASER_POWER_DENOM,
-						CMAX/LASER_POWER_DENOM,
-						CMAX/LASER_POWER_DENOM))
-		return points
-
 	def produce_circle2(self):
 		RESIZE_SPEED_INV = 200
 		CMAX = 30000
@@ -82,34 +64,94 @@ class QueueStream(object):
 	def produce(self):
 		#print 'Streamer Produce...'
 		count = 0
+		lastPt = pt = (0, 0, 0, 0, 0) # give scope
 		while True:
 			data = self.get_nowait()
+
 			if data:
-				# Points encoded in each packet
-				numPoints = (len(data) - 3)/18
-				off = 3
-				for i in xrange(numPoints):
+				generator = self._produce_stream(data)
 
-					d = data[off+2:off+12]
-					off += 18
-
-					x, y, r, g, b, = struct.unpack('<hhHHH', d)
-					yield (x, y, r, g, b)
-
-				count = 0
-				#print 'qsize %d' % self._queue.qsize()
 			else:
-				count += 1
-				#if count < 3:
-				#	time.sleep(0.01)
-				for pt in self.produce_circle():
+				generator = self._produce_circle()
+
+			#firstPt = generator.next()
+
+			#for pt in self._track_between(firstPt, lastPt):
+			#	yield pt
+
+			#yield firstPt
+
+			for pt in generator:
+				yield pt
+
+			lastPt = pt
+
+			"""
+			else:
+				pt = generator.next()
+				yield pt
+
+				for pt in generator:
 					yield pt
 
+				lastPt = pt
+
+				count += 1
 				if count < 6 or \
 					(count < 500 and count % 50 == 0) or \
 					(count % 500 == 0):
 						print 'queue empty %d' % count
+			"""
 
+	def _produce_stream(self, data):
+		# Points encoded in each packet
+		numPoints = (len(data) - 3)/18
+		off = 3
+		for i in xrange(numPoints):
+
+			d = data[off+2:off+12]
+			off += 18
+
+			x, y, r, g, b, = struct.unpack('<hhHHH', d)
+			pt = (x, y, r, g, b)
+			lastPt = pt
+			yield pt
+
+	def _produce_circle(self):
+		RESIZE_SPEED_INV = 200
+		CMAX = 30000
+		MAXRAD = 10260
+		USERAD = MAXRAD
+		LASER_POWER_DENOM = 1.0
+		SAMPLE_PTS = 100 # 30 and below very damaging to galvos
+		rad = int(USERAD)
+		points = []
+		for i in xrange(0, SAMPLE_PTS, 1):
+			i = float(i) / SAMPLE_PTS * 2 * math.pi
+			x = int(math.cos(i) * rad)
+			y = int(math.sin(i) * rad)
+			yield (x, y, CMAX/LASER_POWER_DENOM,
+						CMAX/LASER_POWER_DENOM,
+						CMAX/LASER_POWER_DENOM)
+
+	"""
+	def _track_between(lastPt, nextPt):
+		lastX = lastPt[0]
+		lastY = lastPt[1]
+		xDiff = lastPt[0] - nextPt[0]
+		yDiff = lastPt[1] - nextPt[1]
+
+		mv = 10
+
+		for i in xrange(mv):
+			percent = i/float(mv)
+			xb = int(lastX - xDiff*percent)
+			yb = int(lastY - yDiff*percent)
+			# If we want to debug the tracking path 
+			#if self.showTracking:
+			#	yield (xb, yb, 0, 0, 0)
+			yield (xb, yb, 0, 0, CMAX)
+	"""
 
 
 	def read(self, n):
