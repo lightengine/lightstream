@@ -6,7 +6,7 @@ class QueueStream(object):
 
 	def __init__(self, queue=None):
 		if not queue:
-			queue = Queue()
+			queue = Queue(maxsize=10)
 
 		self.called = False
 		self._queue = queue
@@ -80,9 +80,9 @@ class QueueStream(object):
 
 	def produce(self):
 		#print 'Streamer Produce...'
+		count = 0
 		while True:
 			data = self.get_nowait()
-
 			if data:
 				# Index of instructions
 				l = len(data)
@@ -90,22 +90,20 @@ class QueueStream(object):
 				off = 3
 				for i in xrange(numPoints):
 
-					d = data[off:off+18]
+					d = data[off+2:off+12]
 					off += 18
 
-					f, x, y, r, g, b, i, u1, u2 = struct.unpack('<HhhHHHHHH', d)
+					x, y, r, g, b, = struct.unpack('<hhHHH', d)
 					yield (x, y, r, g, b)
 
-				continue
-
-			if not data:
+				count = 0
+				print 'qsize %d' % self._queue.qsize()
+			else:
+				count += 1
 				for pt in self.produce_circle():
 					yield pt
-				continue
+				print 'disconnected %d' % count
 
-			#print 'Data:'
-			cmd, length = struct.unpack("<cH", data)
-			#print cmd, length
 
 
 	def read(self, n):

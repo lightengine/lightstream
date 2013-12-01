@@ -4,6 +4,7 @@ from socket import *
 #from broadcast import broadcast_get_client # TODO FIX IMPORT LIB NAMES
 from broadcast import BroadcastThread
 from etherdream import EtherdreamThread
+from queue import SmallQueue
 
 class VirtualDac(Process):
 	"""
@@ -18,6 +19,7 @@ class VirtualDac(Process):
 		super(VirtualDac, self).__init__()
 
 		if not queue:
+			#queue = SmallQueue()
 			queue = Queue()
 
 		self._queue = queue
