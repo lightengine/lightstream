@@ -97,14 +97,18 @@ class QueueStream(object):
 					yield (x, y, r, g, b)
 
 				count = 0
-				print 'qsize %d' % self._queue.qsize()
+				#print 'qsize %d' % self._queue.qsize()
 			else:
 				count += 1
 				#if count < 3:
 				#	time.sleep(0.01)
 				for pt in self.produce_circle():
 					yield pt
-				print 'disconnected %d' % count
+
+				if count < 6 or \
+					(count < 500 and count % 50 == 0) or \
+					(count % 500 == 0):
+						print 'queue empty %d' % count
 
 
 

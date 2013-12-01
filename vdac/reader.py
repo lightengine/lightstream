@@ -17,11 +17,13 @@ class SocketReader(object):
 			buf = self._socket.recv(1024)
 
 		except socket.timeout as e:
-			print 'EXCEPT 1'
+			print 'EXCEPT 1 (socket.timeout)'
 			raise e
 
 		except Exception as e:
 			print 'EXCEPT 2'
+			print type(e)
+			print str(e)
 			raise e
 
 		if not buf:

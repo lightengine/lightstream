@@ -20,7 +20,7 @@ class VirtualDac(Process):
 
 		if not queue:
 			#queue = SmallQueue()
-			queue = Queue(maxsize=5)
+			queue = Queue(maxsize=2)
 
 		self._queue = queue
 		self._is_running = False
@@ -59,6 +59,7 @@ class VirtualDac(Process):
 
 			try:
 				print 'Broadcasting... ASDF'
+
 				bt = BroadcastThread(self._host)
 				bt.start()
 				csock, addr = get_client()
@@ -71,8 +72,9 @@ class VirtualDac(Process):
 				print '...ended normally!?!'
 
 			except Exception as e:
-				print 'End broadcast...'
-				print e
+				print 'VDAC EXCEPTION...'
+				print type(e)
+				print str(e)
 
 			with self._lock:
 				running = self._is_running
