@@ -1,4 +1,5 @@
 import math
+import time
 import struct
 from multiprocessing import Process, Queue, RLock
 
@@ -6,7 +7,7 @@ class QueueStream(object):
 
 	def __init__(self, queue=None):
 		if not queue:
-			queue = Queue(maxsize=10)
+			queue = Queue()
 
 		self.called = False
 		self._queue = queue
@@ -84,9 +85,8 @@ class QueueStream(object):
 		while True:
 			data = self.get_nowait()
 			if data:
-				# Index of instructions
-				l = len(data)
-				numPoints = (l - 3)/18
+				# Points encoded in each packet
+				numPoints = (len(data) - 3)/18
 				off = 3
 				for i in xrange(numPoints):
 
@@ -100,6 +100,8 @@ class QueueStream(object):
 				print 'qsize %d' % self._queue.qsize()
 			else:
 				count += 1
+				#if count < 3:
+				#	time.sleep(0.01)
 				for pt in self.produce_circle():
 					yield pt
 				print 'disconnected %d' % count

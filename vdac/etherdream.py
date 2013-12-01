@@ -1,4 +1,6 @@
+import time
 import threading
+from Queue import Full as QueueFullException
 
 from reader import SocketReader
 from packets import ResponsePacket
@@ -28,8 +30,16 @@ class EtherdreamThread(threading.Thread):
 			try:
 				buf = self._reader.read()
 				self.handle_packet(buf)
+
+			except QueueFullException as e:
+				print 'EtherdreamThread: Queue full'
+				time.sleep(0.01)
+				continue
+
 			except Exception as e:
-				print e
+				print 'EtherdreamThread.main() exception'
+				print type(e)
+				print str(e)
 				break
 
 	def handle_packet(self, packet):
@@ -43,7 +53,19 @@ class EtherdreamThread(threading.Thread):
 		# `data` is most frequent packet type
 		if t == 'd':
 			if self._queue:
-				self._queue.put_nowait(packet)
+
+
+				l = self._queue.qsize()
+				w = l * 0.001
+				print 'sleep %f' % w
+				time.sleep(w)
+				try:
+					self._queue.put_nowait(packet)
+
+				except QueueFullException:
+					print 'QueueFullException 2'
+					time.sleep(0.01)
+
 			self.respond_data()
 			return
 

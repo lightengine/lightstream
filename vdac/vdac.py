@@ -20,7 +20,7 @@ class VirtualDac(Process):
 
 		if not queue:
 			#queue = SmallQueue()
-			queue = Queue()
+			queue = Queue(maxsize=5)
 
 		self._queue = queue
 		self._is_running = False
@@ -47,7 +47,7 @@ class VirtualDac(Process):
 			s = socket(AF_INET, SOCK_STREAM)
 			s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 			s.bind(('', 7765))
-			s.listen(3)
+			s.listen(0.3)
 			return s.accept() # return (csock, addr)
 
 		with self._lock:
@@ -56,10 +56,10 @@ class VirtualDac(Process):
 		running = True
 
 		while running:
-			bt = BroadcastThread(self._host)
 
 			try:
-				print 'Broadcasting...'
+				print 'Broadcasting... ASDF'
+				bt = BroadcastThread(self._host)
 				bt.start()
 				csock, addr = get_client()
 				bt.kill()
@@ -68,10 +68,11 @@ class VirtualDac(Process):
 
 				EtherdreamThread(csock, addr, self._queue).main()
 
+				print '...ended normally!?!'
+
 			except Exception as e:
+				print 'End broadcast...'
 				print e
-				raise e
-				pass
 
 			with self._lock:
 				running = self._is_running
