@@ -64,44 +64,35 @@ class QueueStream(object):
 	def produce(self):
 		#print 'Streamer Produce...'
 		count = 0
+		doBlank = False
 		lastPt = pt = (0, 0, 0, 0, 0) # give scope
+		curMode = 0
+		lastMode = 0
+
 		while True:
 			data = self.get_nowait()
+			lastMode = curMode
 
 			if data:
 				generator = self._produce_stream(data)
+				curMode = 1
 
 			else:
 				generator = self._produce_circle()
+				curMode = 0
 
-			#firstPt = generator.next()
+			firstPt = generator.next()
 
-			#for pt in self._track_between(firstPt, lastPt):
-			#	yield pt
+			if lastMode != curMode or curMode == 1:
+				for pt in self._blank(firstPt, lastPt):
+					yield pt
 
-			#yield firstPt
+			yield firstPt
 
 			for pt in generator:
 				yield pt
 
 			lastPt = pt
-
-			"""
-			else:
-				pt = generator.next()
-				yield pt
-
-				for pt in generator:
-					yield pt
-
-				lastPt = pt
-
-				count += 1
-				if count < 6 or \
-					(count < 500 and count % 50 == 0) or \
-					(count % 500 == 0):
-						print 'queue empty %d' % count
-			"""
 
 	def _produce_stream(self, data):
 		# Points encoded in each packet
@@ -113,9 +104,7 @@ class QueueStream(object):
 			off += 18
 
 			x, y, r, g, b, = struct.unpack('<hhHHH', d)
-			pt = (x, y, r, g, b)
-			lastPt = pt
-			yield pt
+			yield (x, y, r, g, b)
 
 	def _produce_circle(self):
 		RESIZE_SPEED_INV = 200
@@ -134,25 +123,23 @@ class QueueStream(object):
 						CMAX/LASER_POWER_DENOM,
 						CMAX/LASER_POWER_DENOM)
 
-	"""
-	def _track_between(lastPt, nextPt):
+	def _blank(self, lastPt, nextPt):
 		lastX = lastPt[0]
 		lastY = lastPt[1]
 		xDiff = lastPt[0] - nextPt[0]
 		yDiff = lastPt[1] - nextPt[1]
 
-		mv = 10
+		CMAX = 30000
+		mv = 7
 
 		for i in xrange(mv):
 			percent = i/float(mv)
 			xb = int(lastX - xDiff*percent)
 			yb = int(lastY - yDiff*percent)
-			# If we want to debug the tracking path 
+			# If we want to debug the tracking path
 			#if self.showTracking:
 			#	yield (xb, yb, 0, 0, 0)
-			yield (xb, yb, 0, 0, CMAX)
-	"""
-
+			yield (xb, yb, 0, 0, 0)
 
 	def read(self, n):
 		d = [self.stream.next() for i in xrange(n)]
