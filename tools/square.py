@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+import setpath
 from oldlib import dac2 as dac
 from oldlib.common import *
-from macs import *
+from net.macs import *
 from find_dac import *
 
 import math

@@ -28,7 +28,6 @@ def find_dac_with_mac(mac):
 		if bp.mac == mac.etherdreamStr:
 			return addr[0]
 
-
 def find_first_dac():
 	# Adapted from Jacob Potter's GPL-licensed EtherDream code
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -36,3 +35,4 @@ def find_first_dac():
 	data, addr = s.recvfrom(1024)
 	bp = BroadcastPacket(data)
 	return addr[0]
+

@@ -1,11 +1,12 @@
 #!/usr/bin/env python2
 
 from socket import *
-from macs import *
+
+import setpath
+from net.macs import *
 from oldlib.dac import BroadcastPacket
 
 BCAST_PORT = 7654
-
 
 def find_dacs():
 	s = socket(AF_INET, SOCK_DGRAM)
