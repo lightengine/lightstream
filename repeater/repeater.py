@@ -7,10 +7,14 @@ from oldlib import dac
 from stream import QueueStream
 
 class RepeaterProcess(Process):
-	def __init__(self, macObj, queue=None):
+
+	def __init__(self, send_mac=None, queue=None):
+		"""
+		Send_mac should be a Mac object or None.
+		"""
 		self._isRunning = False # XXX: A locked resource
 		self._lock = RLock()
-		self._macObj = macObj
+		self._macObj = send_mac
 		self._queueStream = QueueStream(queue=queue)
 
 		super(RepeaterProcess, self).__init__()
@@ -26,7 +30,11 @@ class RepeaterProcess(Process):
 
 		while running:
 			try:
-				addr = find_dac_with_mac(self._macObj)
+				addr = None
+				if self._macObj:
+					addr = find_dac_with_mac(self._macObj)
+				else:
+					addr = find_first_dac()
 
 				"""
 				print '\n    - '.join([
