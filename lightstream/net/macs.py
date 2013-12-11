@@ -22,9 +22,10 @@ def mac_to_str(mac):
 	return ':'.join('%02x' % (ord(x), ) for x in mac)
 
 class Mac(object):
-	def __init__(self, macStr):
+	def __init__(self, macStr, ipAddr=None):
 		self.macStr = macStr
 		self.etherdreamStr = ''
+		self.ipAddr = ipAddr
 
 		c = ''
 		for p in macStr.split(':'):

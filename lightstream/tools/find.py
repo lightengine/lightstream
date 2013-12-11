@@ -22,7 +22,7 @@ def find_dacs():
 		m = mac_to_str(bp.mac)
 		macsFound.add(m)
 		if sz != len(macsFound):
-			print "Found EtherDream: %s" % m
+			print "Found EtherDream: %s @ %s" % (m, addr)
 
 if __name__ == '__main__':
 	find_dacs()
