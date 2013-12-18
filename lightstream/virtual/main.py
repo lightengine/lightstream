@@ -3,7 +3,7 @@
 import sys
 
 from oldlib import dac
-from find_dac import *
+from net.find_dac import *
 from net.macs import *
 
 # TODO IMPORT SIMPLIFICATION
