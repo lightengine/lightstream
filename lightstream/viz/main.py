@@ -70,7 +70,7 @@ class PygameThread(Thread):
 				self.spriteGroup.draw(self.window)
 
 				if len(self.sprites) > 20:
-					print 'pop'
+					#print 'pop'
 					sprite = self.sprites.pop(0)
 					self.spriteGroup.remove(sprite)
 
