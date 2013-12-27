@@ -63,7 +63,6 @@ class PointSprite(pygame.sprite.Sprite):
 		self.rect.x = x
 		self.rect.y = y
 
-
 class PygameThread(Thread):
 	def __init__(self, queue = None):
 		super(PygameThread, self).__init__()
@@ -73,7 +72,7 @@ class PygameThread(Thread):
 
 		self._queue = queue
 		if not queue:
-			self._queue = MQueue(maxsize=20)
+			self._queue = MQueue(maxsize=2)
 
 		self.sprites = []
 		self.spriteGroup = pygame.sprite.Group()
@@ -93,13 +92,20 @@ class PygameThread(Thread):
 			self.spriteGroup.add(sprite)
 
 	@staticmethod
-	def _extract_points(data):
+	def _extract_points(data, divide=1):
+		if type(divide) not in [int, float]:
+			divide = 1
+		if divide < 1:
+			divide = 1
+
 		# Points encoded in each packet
 		numPoints = (len(data) - 3)/18
 		off = 3
-		for i in xrange(numPoints):
+		for i in xrange(numPoints/divide):
+			j = i*divide
 			d = data[off+2:off+12]
-			off += 18
+			#off += 18
+			off = 3 + (18 * i)
 
 			x, y, r, g, b, = struct.unpack('<hhHHH', d)
 			yield (x, y, r, g, b)
@@ -130,7 +136,7 @@ class PygameThread(Thread):
 
 			newPoints = []
 			if data:
-				for point in self._extract_points(data):
+				for point in self._extract_points(data, 4):
 					s = PointSprite(*point)
 					self.sprites.append(s)
 					self.spriteGroup.add(s)
@@ -138,7 +144,7 @@ class PygameThread(Thread):
 			with self.lock:
 				self.spriteGroup.draw(self.window)
 
-				while len(self.sprites) > 20:
+				while len(self.sprites) > 900:
 					sprite = self.sprites.pop(0)
 					self.spriteGroup.remove(sprite)
 
