@@ -57,7 +57,6 @@ class PointSprite(pygame.sprite.Sprite):
 		_y = int(WINDOW_HEIGHT/2 * (y / LASER_DMAX_F)) + WINDOW_HEIGHT / 2
 		self.rect.x = _x
 		self.rect.y = _y
-		#print _x, _y
 
 	def move(self, x, y):
 		self.rect.x = x
@@ -95,38 +94,32 @@ class PygameThread(Thread):
 
 	@staticmethod
 	def _extract_points(data, divide=1):
+		"""
+		Extract point tuples from Etherdream packets.
+		Use divide to skip points (evenly).
+		"""
 		if type(divide) not in [int, float]:
 			divide = 1
 		if divide < 1:
 			divide = 1
 
 		# Points encoded in each packet
+		# (First 3: packet metadata, every 18 after: single point)
 		numPoints = (len(data) - 3)/18
 		off = 3
 		for i in xrange(numPoints/divide):
 			j = i*divide
 			d = data[off+2:off+12]
-			#off += 18
 			off = 3 + (18 * i)
 
 			x, y, r, g, b, = struct.unpack('<hhHHH', d)
 			yield (x, y, r, g, b)
 
 	def run(self):
-		#a = Block(COLOR_RED, SPRITE_SIZE, SPRITE_SIZE)
-		#self.sprites.add(a)
 		while True:
-			#a.rect.x = random.randint(0, WINDOW_WIDTH)
-			#a.rect.y = random.randint(0, WINDOW_HEIGHT)
-			#print a.rect.x, a.rect.y
-
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit(0)
-
-			#x = random.randint(0, WINDOW_WIDTH)
-			#y = random.randint(0, WINDOW_HEIGHT)
-			#self.thread_add_sprite(x, y)
 
 			pygame.display.flip()
 			self.window.fill(COLOR_BLACK)
@@ -139,37 +132,12 @@ class PygameThread(Thread):
 					except:
 						pass
 
-			newPoints = []
-			#sprites = []
 			spriteGroup = pygame.sprite.Group()
 
 			if data:
 				for point in self._extract_points(data, divide=2):
 					s = PointSprite(*point)
-
-					"""
-					self.sprites.append(s)
-					self.spriteGroup.add(s)
-
-					if len(self.sprites) > 100:
-						sprite = self.sprites.pop(0)
-						self.spriteGroup.remove(sprite)
-					"""
-
-					#sprites.append(s)
 					spriteGroup.add(s)
 
 			spriteGroup.draw(self.window)
-
-			"""
-			with self.lock:
-				self.spriteGroup.draw(self.window)
-
-				# Way worse performance...
-				#while len(self.sprites) > 90:
-				#	sprite = self.sprites.pop(0)
-				#	self.spriteGroup.remove(sprite)
-			"""
-
-
 
