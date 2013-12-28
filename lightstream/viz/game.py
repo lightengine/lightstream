@@ -84,12 +84,14 @@ class PygameThread(Thread):
 		with self.lock:
 			self._queue = queue
 
+	"""
 	def thread_add_sprite(self, x, y):
 		sprite = Block(COLOR_RED, SPRITE_SIZE, SPRITE_SIZE)
 		sprite.move(x, y)
 		with self.lock:
 			self.sprites.append(sprite)
 			self.spriteGroup.add(sprite)
+	"""
 
 	@staticmethod
 	def _extract_points(data, divide=1):
@@ -126,6 +128,9 @@ class PygameThread(Thread):
 			#y = random.randint(0, WINDOW_HEIGHT)
 			#self.thread_add_sprite(x, y)
 
+			pygame.display.flip()
+			self.window.fill(COLOR_BLACK)
+
 			data = None
 			if self._queue:
 				with self.lock:
@@ -135,20 +140,36 @@ class PygameThread(Thread):
 						pass
 
 			newPoints = []
+			#sprites = []
+			spriteGroup = pygame.sprite.Group()
+
 			if data:
-				for point in self._extract_points(data, 4):
+				for point in self._extract_points(data, divide=10):
 					s = PointSprite(*point)
+
+					"""
 					self.sprites.append(s)
 					self.spriteGroup.add(s)
 
+					if len(self.sprites) > 100:
+						sprite = self.sprites.pop(0)
+						self.spriteGroup.remove(sprite)
+					"""
+
+					#sprites.append(s)
+					spriteGroup.add(s)
+
+			spriteGroup.draw(self.window)
+
+			"""
 			with self.lock:
 				self.spriteGroup.draw(self.window)
 
-				while len(self.sprites) > 900:
-					sprite = self.sprites.pop(0)
-					self.spriteGroup.remove(sprite)
+				# Way worse performance...
+				#while len(self.sprites) > 90:
+				#	sprite = self.sprites.pop(0)
+				#	self.spriteGroup.remove(sprite)
+			"""
 
-			pygame.display.flip()
-			self.window.fill(COLOR_BLACK)
 
 
