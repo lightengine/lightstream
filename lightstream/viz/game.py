@@ -18,7 +18,7 @@ WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
 
 LASER_CMAX = 65535 # MAX COLOR VALUE
-LASER_DMAX = 30000 # TODO: Not accurate
+LASER_DMAX = 32000 # TODO: Not accurate
 
 LASER_CMAX_F = LASER_CMAX * 1.0
 LASER_DMAX_F = LASER_DMAX * 1.0
@@ -53,11 +53,11 @@ class PointSprite(pygame.sprite.Sprite):
 		self.image.fill((_r, _g, _b))
 
 	def set_position(self, x, y):
-		_x = int(WINDOW_WIDTH * (x / LASER_DMAX_F)) + WINDOW_WIDTH/2
-		_y = int(WINDOW_HEIGHT * (y / LASER_DMAX_F)) + WINDOW_HEIGHT/2
+		_x = int(WINDOW_WIDTH/2 * (x / LASER_DMAX_F)) + WINDOW_WIDTH / 2
+		_y = int(WINDOW_HEIGHT/2 * (y / LASER_DMAX_F)) + WINDOW_HEIGHT / 2
 		self.rect.x = _x
 		self.rect.y = _y
-		print _x, _y
+		#print _x, _y
 
 	def move(self, x, y):
 		self.rect.x = x
@@ -144,7 +144,7 @@ class PygameThread(Thread):
 			spriteGroup = pygame.sprite.Group()
 
 			if data:
-				for point in self._extract_points(data, divide=10):
+				for point in self._extract_points(data, divide=2):
 					s = PointSprite(*point)
 
 					"""
